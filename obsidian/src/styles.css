@@ -1,0 +1,227 @@
+/* The plugin's styles (docs/phase-14-plugin-obsidian.md, decisions 7, 24
+   and 25), built into `styles.css`, which Obsidian loads with the plugin:
+   KaTeX with its fonts (woff2 only, inside), the page's view styles (all
+   under `.document-view`), and their tokens on Obsidian's theme. */
+@import "katex/dist/katex.min.css";
+@import "../../web/src/styles/page.css";
+
+/* The page's tokens, on the variables of Obsidian's theme: they follow it
+   to dark, and the user's fonts (decision 25). Obsidian's accents are made
+   for marks, not for text: a colour that text is written in is its accent
+   mixed into its text colour (darker on a light theme, lighter on a dark
+   one), which keeps WCAG AA (14f.3, axe-core in Obsidian); a tint is the
+   accent mixed into its background. */
+.collab-link-view .document-view {
+  color-scheme: light;
+  --ink: var(--text-normal);
+  --muted: var(--text-muted);
+  --paper: var(--background-primary);
+  --paper-2: var(--background-secondary);
+  --code-bg: var(--code-background);
+  --rule: var(--background-modifier-border);
+  --pencil: color-mix(
+    in srgb,
+    var(--interactive-accent) 70%,
+    var(--text-normal)
+  );
+  --pencil-bg: color-mix(
+    in srgb,
+    var(--interactive-accent) 16%,
+    var(--background-primary)
+  );
+  --on-pencil: var(--background-primary);
+  /* Obsidian's own, translucent too. */
+  --selection: var(--text-selection);
+  --on-color: var(--text-on-accent);
+  --ins: color-mix(in srgb, var(--color-green) 55%, var(--text-normal));
+  --ins-bg: color-mix(
+    in srgb,
+    var(--color-green) 16%,
+    var(--background-primary)
+  );
+  --del: color-mix(in srgb, var(--color-red) 60%, var(--text-normal));
+  --del-bg: color-mix(in srgb, var(--color-red) 16%, var(--background-primary));
+  --comment-bg: color-mix(
+    in srgb,
+    var(--color-yellow) 28%,
+    var(--background-primary)
+  );
+  --comment-line: var(--color-yellow);
+  --warn-bg: color-mix(
+    in srgb,
+    var(--color-orange) 18%,
+    var(--background-primary)
+  );
+  --shadow: var(--shadow-s);
+  --font-ui: var(--font-interface);
+  --font-ui-size: var(--font-ui-medium);
+  --font-doc: var(--font-text);
+  --font-doc-size: var(--font-text-size);
+  --font-code: var(--font-monospace);
+  /* Callouts (phase 15, decision 8): each family's colour is the theme's
+     own variable for it (Obsidian 1.13.7's names, *Relevé 15a*), for its
+     icon and its tint; its title in the text's colour, which keeps AA
+     whatever the theme (essai 15e.2: Minimal's colours do not). */
+  --md-callout-note: var(--callout-default);
+  --md-callout-abstract: var(--callout-summary);
+  --md-callout-info: var(--callout-info);
+  --md-callout-todo: var(--callout-todo);
+  --md-callout-tip: var(--callout-tip);
+  --md-callout-success: var(--callout-success);
+  --md-callout-question: var(--callout-question);
+  --md-callout-warning: var(--callout-warning);
+  --md-callout-failure: var(--callout-fail);
+  --md-callout-danger: var(--callout-error);
+  --md-callout-bug: var(--callout-bug);
+  --md-callout-example: var(--callout-example);
+  --md-callout-quote: var(--callout-quote);
+  --md-callout-title: var(--text-normal);
+  /* Highlights (ADR-0044): the theme's own, and each color mixed into the
+     background as Obsidian's accents are for a tint. Obsidian 1.14.5
+     defines no `--text-highlight-bg` (a theme may): its own yellow then,
+     as its editor does. */
+  --md-highlight: var(--text-highlight-bg, var(--highlight-background-yellow));
+  --md-highlight-red: color-mix(
+    in srgb,
+    var(--color-red) 30%,
+    var(--background-primary)
+  );
+  --md-highlight-orange: color-mix(
+    in srgb,
+    var(--color-orange) 30%,
+    var(--background-primary)
+  );
+  --md-highlight-yellow: color-mix(
+    in srgb,
+    var(--color-yellow) 30%,
+    var(--background-primary)
+  );
+  --md-highlight-green: color-mix(
+    in srgb,
+    var(--color-green) 30%,
+    var(--background-primary)
+  );
+  --md-highlight-blue: color-mix(
+    in srgb,
+    var(--color-blue) 30%,
+    var(--background-primary)
+  );
+  --md-highlight-purple: color-mix(
+    in srgb,
+    var(--color-purple) 30%,
+    var(--background-primary)
+  );
+  /* Obsidian's own, for a link it styles: the view's pencil, readable. */
+  --link-color: var(--pencil);
+  --link-color-hover: var(--pencil);
+  --link-external-color: var(--pencil);
+  --link-external-color-hover: var(--pencil);
+  /* Who wrote (ADR-0059 §4): the page's order of accents, from the theme's
+     own; red left to deletions, a brown (orange into the text) for the
+     eighth. A tint (8 %) keeps every text colour of the view at 4.6:1 on
+     it, a line (the preview's bars, the legend's swatches) 3:1 on the
+     background, in Obsidian's two themes (`check:ui`; 14 % put the pencil
+     at 4.30 on the brown, 3.97 on the yellow in dark). */
+  --author-1: color-mix(
+    in srgb,
+    var(--color-orange) 8%,
+    var(--background-primary)
+  );
+  --author-2: color-mix(
+    in srgb,
+    var(--color-green) 8%,
+    var(--background-primary)
+  );
+  --author-3: color-mix(
+    in srgb,
+    var(--color-purple) 8%,
+    var(--background-primary)
+  );
+  --author-4: color-mix(
+    in srgb,
+    var(--color-pink) 8%,
+    var(--background-primary)
+  );
+  --author-5: color-mix(
+    in srgb,
+    var(--color-blue) 8%,
+    var(--background-primary)
+  );
+  --author-6: color-mix(
+    in srgb,
+    var(--color-yellow) 8%,
+    var(--background-primary)
+  );
+  --author-7: color-mix(
+    in srgb,
+    var(--color-cyan) 8%,
+    var(--background-primary)
+  );
+  --author-8: color-mix(
+    in srgb,
+    var(--author-8-line) 8%,
+    var(--background-primary)
+  );
+  --author-unknown: var(--background-secondary);
+  --author-1-line: color-mix(
+    in srgb,
+    var(--color-orange) 70%,
+    var(--text-normal)
+  );
+  --author-2-line: color-mix(
+    in srgb,
+    var(--color-green) 70%,
+    var(--text-normal)
+  );
+  --author-3-line: color-mix(
+    in srgb,
+    var(--color-purple) 70%,
+    var(--text-normal)
+  );
+  --author-4-line: color-mix(in srgb, var(--color-pink) 70%, var(--text-normal));
+  --author-5-line: color-mix(in srgb, var(--color-blue) 70%, var(--text-normal));
+  --author-6-line: color-mix(
+    in srgb,
+    var(--color-yellow) 70%,
+    var(--text-normal)
+  );
+  --author-7-line: color-mix(in srgb, var(--color-cyan) 70%, var(--text-normal));
+  --author-8-line: color-mix(
+    in srgb,
+    var(--color-orange) 45%,
+    var(--text-normal)
+  );
+  --author-unknown-line: var(--text-muted);
+}
+.theme-dark .collab-link-view .document-view {
+  color-scheme: dark;
+}
+
+/* The view in its tab: as high as the tab, not the window; against its
+   edges, as the page in the window (Obsidian's padding, on
+   `.workspace-leaf-content .view-content`, left a gap above the sticky
+   header, the text scrolling in it). */
+.collab-link-view {
+  position: relative;
+}
+.collab-link-view.view-content {
+  padding: 0;
+}
+.collab-link-view .document-view:has(.view-editor.side-by-side) {
+  height: 100%;
+}
+.collab-link-view .document-view .invalid-entries {
+  position: absolute;
+}
+
+/* Its text selected and copied, as in the page: a card, the preview, the
+   history (Obsidian's body refuses a selection; its buttons keep their
+   own `user-select: none`). */
+.collab-link-view .document-view {
+  user-select: text;
+}
+
+/* What the plugin says under the view (decision 21). */
+.collab-link-message {
+  color: var(--text-muted);
+}

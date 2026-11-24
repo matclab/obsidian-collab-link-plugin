@@ -1,0 +1,14 @@
+{
+  "name": "collab-link",
+  "version": "0.8.3",
+  "license": "Apache-2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "vitest run",
+    "lint": "biome check .",
+    "test:e2e": "node scripts/e2e.mjs",
+    "check:ui": "node scripts/check-ui.mjs"
+  }
+}

@@ -1,0 +1,44 @@
+# Collab Link's release, on GitHub (obsidian/README.md, "Publish"): written
+# by scripts/plugin-mirror.mjs of the source repository, edited there. On a
+# tag x.y.z, the plugin built from the tagged commit, attested, and drafted
+# as the release Obsidian's community directory reads: main.js,
+# manifest.json, styles.css; its notes, the version's section of
+# CHANGELOG.md. Publish the draft by hand.
+name: Release Collab Link
+
+on:
+  push:
+    tags:
+      - "*.*.*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "26"
+      - name: The tag is the manifest's version
+        run: test "$(node -p 'require("./manifest.json").version')" = "$GITHUB_REF_NAME"
+      - name: Build
+        run: npm run build
+      - name: Attest
+        uses: actions/attest@v4
+        with:
+          subject-path: |
+            obsidian/dist/main.js
+            obsidian/dist/manifest.json
+            obsidian/dist/styles.css
+      - name: Draft the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node .github/changelog.mjs notes CHANGELOG.md "$GITHUB_REF_NAME" > "$RUNNER_TEMP/notes.md"
+          gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --draft \
+            --notes-file "$RUNNER_TEMP/notes.md" \
+            obsidian/dist/main.js obsidian/dist/manifest.json obsidian/dist/styles.css

@@ -1,0 +1,1366 @@
+/* The view's stylesheet (phase 10, decision 1): tokens first, then what
+   CodeMirror, the preview and the history draw outside any component.
+   Components keep their own styles; every color comes from a token. Every
+   rule is under `.document-view` (phase 14, decision 24): the plugin loads
+   this sheet in Obsidian, where nothing else may change; what is the
+   page's alone is in `page-only.css`. Under `:where(.document-view)`,
+   which weighs nothing: each rule keeps the weight it had against the
+   components' own styles. */
+
+:where(.document-view) {
+  /* Its layout follows its own width, not the window's (phase 14,
+     decision 26): narrow in a narrow pane of Obsidian. */
+  container: document-view / inline-size;
+  color-scheme: light;
+  --ink: #1f2633;
+  --muted: #5b6475;
+  --paper: #ffffff;
+  --paper-2: #f5f6f8;
+  /* Inline code and code blocks in the editor (phase 11). */
+  --code-bg: #eef0f4;
+  --rule: #e2e5eb;
+  --pencil: #2b59c3;
+  --pencil-bg: #eaf0fc;
+  /* Translucent: over a callout's, a code block's tint, still darker. */
+  --selection: rgb(43 89 195 / 0.25);
+  --on-pencil: #ffffff;
+  /* Text on a person's color (presence): white in both themes. */
+  --on-color: #ffffff;
+  --ins: #1e7a4c;
+  --ins-bg: #e3f3ea;
+  --del: #b42318;
+  --del-bg: #fbe9e7;
+  --comment-bg: #fff1bf;
+  --comment-line: #b98b00;
+  --warn-bg: #fff4d6;
+  /* Callouts (phase 15, decision 8), one per family: Obsidian's colour
+     (*Relevé 15a*), mixed with the ink until a title in it reads at AA
+     on its tint, nested callouts' too. */
+  --md-callout-note: #0d5eb9;
+  --md-callout-abstract: #116b71;
+  --md-callout-info: #0d5eb9;
+  --md-callout-todo: #0d5eb9;
+  --md-callout-tip: #116b71;
+  --md-callout-success: #146e40;
+  --md-callout-question: #905117;
+  --md-callout-warning: #905117;
+  --md-callout-failure: #ae2e41;
+  --md-callout-danger: #ae2e41;
+  --md-callout-bug: #ae2e41;
+  --md-callout-example: #6649c9;
+  --md-callout-quote: #5e6268;
+  /* Highlights (ADR-0044): the default, then the six colors an emoji
+     names (Obsidian 1.14); tints the ink reads on at AA. The yellow, of
+     the default too, more saturated than a comment's (--comment-bg). */
+  --md-highlight: #ffe45c;
+  --md-highlight-red: #ffd8d4;
+  --md-highlight-orange: #ffe0bf;
+  --md-highlight-yellow: #ffe45c;
+  --md-highlight-green: #d3f1da;
+  --md-highlight-blue: #d5e5ff;
+  --md-highlight-purple: #e8dbff;
+  /* Who wrote (ADR-0059 §3): a tint per person, by order of arrival,
+     under every text color (ink, grey, an addition's green, a deletion's
+     red, a link) at 4.6:1 at least; unknown in grey.
+     Blue only fifth: the first would read as the selection. */
+  --author-1: #ffecd9;
+  --author-2: #dff4e2;
+  --author-3: #f2ecfd;
+  --author-4: #fdeaf3;
+  --author-5: #e6f0ff;
+  --author-6: #fbf0b3;
+  --author-7: #d8f4f2;
+  --author-8: #f5eee6;
+  --author-unknown: #eeeff2;
+  /* Each person's line (the preview's bars, the legend's dots): 3:1 at
+     least on the paper. */
+  --author-1-line: #c2620a;
+  --author-2-line: #2f8a3e;
+  --author-3-line: #7a4fd0;
+  --author-4-line: #c43c83;
+  --author-5-line: #2b6fd6;
+  --author-6-line: #8f7200;
+  --author-7-line: #11807a;
+  --author-8-line: #8a6240;
+  --author-unknown-line: #767c8a;
+  --shadow: 0 1px 2px rgb(31 38 51 / 0.06), 0 6px 18px rgb(31 38 51 / 0.08);
+  /* A QR code is dark on light whatever the theme: as cameras read it. */
+  --qr-dark: #000000;
+  --qr-light: #ffffff;
+  --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* The interface's text: in rem, as every font size (AGENTS.md, §3). */
+  --font-ui-size: 0.9375rem;
+  --font-doc: "Literata Variable", Charter, "Iowan Old Style", Georgia, serif;
+  /* The document's text, in the editor, the preview and the history: in
+     rem, as every font size (AGENTS.md, §3). */
+  --font-doc-size: 0.9375rem;
+  --font-code: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --radius-s: 4px;
+  --radius-m: 8px;
+  --column: 46rem;
+  /* The room between the column's edge and its text, the page's editor's
+     frame included: the same in the editor and the preview (phase 37b). */
+  --text-inset: 1.5rem;
+  --margin-width: 21rem;
+  /* The outline's width (ADR-0062, PV1), as DEFAULT_OUTLINE_WIDTH. */
+  --outline-width-default: 15rem;
+  --outline-width: var(--outline-width-default);
+  --narrow: 56.25rem;
+}
+
+/* The system's preference (phase 10g): the same tokens, darker. */
+@media (prefers-color-scheme: dark) {
+  :where(.document-view) {
+    --ink: #e4e8ef;
+    --muted: #a3acba;
+    --paper: #15181e;
+    --paper-2: #1d2128;
+    --code-bg: #2a303a;
+    --rule: #2f3540;
+    --pencil: #8aaaf6;
+    --pencil-bg: #1f2b47;
+    --selection: rgb(138 170 246 / 0.3);
+    --on-pencil: #0f1626;
+    --on-color: #ffffff;
+    --ins: #6acb98;
+    --ins-bg: #173326;
+    --del: #f4918a;
+    --del-bg: #3d2120;
+    --comment-bg: #3d3416;
+    --comment-line: #d9b23c;
+    --warn-bg: #3a3116;
+    --md-callout-note: #4a9dfa;
+    --md-callout-abstract: #53dfdd;
+    --md-callout-info: #4a9dfa;
+    --md-callout-todo: #4a9dfa;
+    --md-callout-tip: #53dfdd;
+    --md-callout-success: #44cf6e;
+    --md-callout-question: #e9973f;
+    --md-callout-warning: #e9973f;
+    --md-callout-failure: #f56d73;
+    --md-callout-danger: #f56d73;
+    --md-callout-bug: #f56d73;
+    --md-callout-example: #aa85ff;
+    --md-callout-quote: #9e9e9e;
+    --md-highlight: #6b5800;
+    --md-highlight-red: #5a2424;
+    --md-highlight-orange: #5a3616;
+    --md-highlight-yellow: #6b5800;
+    --md-highlight-green: #1c472b;
+    --md-highlight-blue: #1c3961;
+    --md-highlight-purple: #3d2b61;
+    --author-1: #4f3115;
+    --author-2: #1f4428;
+    --author-3: #362a58;
+    --author-4: #4d2238;
+    --author-5: #1d3557;
+    --author-6: #473f14;
+    --author-7: #154544;
+    --author-8: #43362a;
+    --author-unknown: #2e333b;
+    --author-1-line: #f0a050;
+    --author-2-line: #6fcf7f;
+    --author-3-line: #b39af0;
+    --author-4-line: #f08cc0;
+    --author-5-line: #7fb0f5;
+    --author-6-line: #e0c050;
+    --author-7-line: #5fd0c8;
+    --author-8-line: #c9a07a;
+    --author-unknown-line: #8b919c;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.35), 0 8px 24px rgb(0 0 0 / 0.4);
+    --qr-dark: #000000;
+    --qr-light: #ffffff;
+    color-scheme: dark;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.document-view) *,
+  :where(.document-view) *::before,
+  :where(.document-view) *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+:where(.document-view),
+:where(.document-view) * {
+  box-sizing: border-box;
+}
+
+:where(.document-view) {
+  background: var(--paper);
+  color: var(--ink);
+  font: var(--font-ui-size) / 1.45 var(--font-ui);
+}
+
+:where(.document-view) [hidden] {
+  display: none !important;
+}
+
+:where(.document-view) :focus-visible {
+  outline: 2px solid var(--pencil);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------- controls */
+
+:where(.document-view) button,
+:where(.document-view) select,
+:where(.document-view) input,
+:where(.document-view) textarea {
+  font: inherit;
+  color: inherit;
+}
+:where(.document-view) button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-s);
+  background: var(--paper);
+  cursor: pointer;
+  white-space: nowrap;
+}
+:where(.document-view) button:hover:not(:disabled) {
+  background: var(--paper-2);
+}
+:where(.document-view) button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+:where(.document-view) .dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+:where(.document-view) button.primary {
+  background: var(--pencil);
+  border-color: var(--pencil);
+  color: var(--on-pencil);
+}
+:where(.document-view) button.primary:hover:not(:disabled) {
+  background: var(--pencil);
+  filter: brightness(1.08);
+}
+:where(.document-view) button.quiet {
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+}
+:where(.document-view) button.quiet:hover:not(:disabled),
+:where(.document-view) button.quiet[aria-pressed="true"] {
+  color: var(--ink);
+}
+:where(.document-view) button.quiet[aria-pressed="true"] {
+  background: var(--pencil-bg);
+}
+:where(.document-view) button.danger {
+  color: var(--del);
+}
+:where(.document-view) .icon-button {
+  padding: 0.35rem;
+  border-color: transparent;
+  background: transparent;
+  line-height: 1;
+}
+:where(.document-view) input,
+:where(.document-view) select,
+:where(.document-view) textarea {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-s);
+  background: var(--paper);
+  padding: 0.35rem 0.5rem;
+}
+:where(.document-view) .segmented {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-m);
+  background: var(--paper-2);
+}
+:where(.document-view) .segmented button {
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  padding: 0.3rem 0.8rem;
+}
+:where(.document-view) .segmented button[aria-pressed="true"] {
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
+}
+
+/* ---------------------------------------------------------------- page */
+
+:where(.document-view) .view-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+}
+:where(.document-view) .view-notices {
+  max-width: calc(var(--column) + var(--margin-width) + 3rem);
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+/* The invitation to be notified (phase 34j, NI4): last in the view,
+   held at the bottom of what scrolls, as the header is at its top. */
+:where(.document-view) .view-invite {
+  position: sticky;
+  bottom: 0.75rem;
+  z-index: 10;
+  max-width: calc(var(--column) + var(--margin-width) + 3rem);
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+:where(.document-view) .notice {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.75rem 0 0;
+  padding: 0.5rem 0.5rem 0.5rem 0.8rem;
+  border-left: 3px solid var(--del);
+  border-radius: var(--radius-s);
+  background: var(--del-bg);
+}
+:where(.document-view) .notice-text {
+  flex: 1;
+}
+:where(.document-view) .name-row {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+:where(.document-view) .name-input {
+  flex: 1;
+  min-width: 0;
+}
+:where(.document-view) .name-dialog p {
+  margin: 0;
+}
+:where(.document-view) .muted {
+  color: var(--muted);
+}
+:where(.document-view) .view-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, var(--column)) var(--margin-width);
+  justify-content: center;
+  gap: 2.5rem;
+  padding: 0.5rem 1.5rem 0;
+}
+:where(.document-view) .view-editor {
+  position: relative;
+  min-width: 0;
+}
+:where(.document-view) .view-annotations {
+  padding-top: 2.75rem;
+  min-width: 0;
+}
+:where(.document-view) .column-tools {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.25rem;
+  flex-wrap: wrap;
+}
+/* The view chosen (`ViewSwitch.svelte`): beside the modes; on a narrow
+   view, first over the text, on its own line. */
+:where(.document-view) .view-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+:where(.document-view) .column-tools > .view-switch {
+  order: -1;
+  flex-basis: 100%;
+  justify-content: flex-end;
+}
+:where(.document-view) .invalid-entries {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  padding: 0.25rem 0.5rem;
+  color: var(--muted);
+  font-size: 0.8em;
+}
+:where(.document-view) .view-workspace.history-mode {
+  grid-template-columns: minmax(0, 64rem);
+}
+:where(.document-view) .view-workspace.history-mode .view-annotations {
+  display: none;
+}
+/* The history: its versions on the left, the one shown on the right. */
+:where(.document-view) .history {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  column-gap: 2rem;
+  align-items: start;
+}
+:where(.document-view) .history > div:first-child {
+  display: contents;
+}
+:where(.document-view) .history .history-list {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+  position: sticky;
+  top: 4rem;
+}
+:where(.document-view) .history .history-head,
+:where(.document-view) .history .history-text,
+:where(.document-view) .history .history-changes {
+  grid-column: 2;
+}
+@container document-view (max-width: 56.25rem) {
+  :where(.document-view) .history {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  :where(.document-view) .history .history-list {
+    grid-row: auto;
+    position: static;
+  }
+  :where(.document-view) .history .history-head,
+  :where(.document-view) .history .history-text,
+  :where(.document-view) .history .history-changes {
+    grid-column: 1;
+  }
+}
+:where(.document-view) .view-workspace.margin-hidden {
+  grid-template-columns: minmax(0, var(--column));
+}
+:where(.document-view) .view-workspace.margin-hidden .view-annotations {
+  padding: 0;
+}
+/* The outline (phase 16, decision 1): a column left of the text, in
+   Write, under the header as the page scrolls; in a narrow view, a drawer
+   over the text (decision 2). */
+:where(.document-view) .view-outline[hidden] {
+  display: none;
+}
+/* Its left edge where it is at its default width, whatever its width
+   (ADR-0062, PV1): dragged, the handle follows the pointer and the text
+   moves, not the column — centred, the whole grid would move by half. */
+:where(.document-view) .view-workspace.with-outline {
+  grid-template-columns:
+    var(--outline-width) minmax(0, var(--column))
+    var(--margin-width);
+  justify-content: start;
+  padding-left: calc(
+    1.5rem +
+    max(
+      0rem,
+      (
+        100cqw -
+        3rem -
+        var(--outline-width-default) -
+        var(--column) -
+        var(--margin-width) -
+        5rem
+      ) /
+      2
+    )
+  );
+}
+:where(.document-view) .view-workspace.with-outline.margin-hidden {
+  grid-template-columns: var(--outline-width) minmax(0, var(--column));
+  padding-left: calc(
+    1.5rem +
+    max(
+      0rem,
+      (100cqw - 3rem - var(--outline-width-default) - var(--column) - 2.5rem) /
+      2
+    )
+  );
+}
+/* As tall as the text, the handle along it; the list under the header as
+   the page scrolls. */
+:where(.document-view) .view-outline {
+  display: flex;
+  min-width: 0;
+}
+/* The list scrolls in its own box, the handle beside it (ADR-0062, PV1). */
+:where(.document-view) .view-outline > .outline-holder {
+  position: sticky;
+  top: var(--outline-top, 0px);
+  align-self: flex-start;
+  max-height: calc(100dvh - var(--outline-top, 0px));
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  /* The wheel at its end does not go on to the text. */
+  overscroll-behavior: contain;
+  padding-bottom: 1rem;
+}
+/* The handle (PV1): a line at the column's edge, wider to the pointer. */
+:where(.document-view) .outline-handle {
+  flex: none;
+  position: relative;
+  width: 0.75rem;
+  cursor: col-resize;
+  touch-action: none;
+}
+:where(.document-view) .outline-handle::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 50%;
+  border-left: 1px solid var(--rule);
+}
+:where(.document-view) .outline-handle:hover::after,
+:where(.document-view) .outline-handle:focus-visible::after {
+  border-left: 2px solid var(--pencil);
+}
+/* Focused, its line is the mark: a ring as tall as the text would be
+   three. */
+:where(.document-view) .outline-handle:focus-visible {
+  outline: none;
+}
+:where(.document-view) .preview > [data-line] {
+  scroll-margin-top: var(--reading-top, 0px);
+}
+/* The drawer (decision 2): a modal dialog, in the top layer, along the
+   window's left edge. */
+:where(.document-view) .outline-drawer {
+  inset: 0 auto 0 0;
+  width: min(20rem, calc(100vw - 3rem));
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0.5rem 1rem 1rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: none;
+  border-right: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+:where(.document-view) .outline-drawer::backdrop {
+  background: rgb(15 20 30 / 0.4);
+}
+/* Side by side (phase 11, decision 11): the editor on the left, the
+   rendering on the right, each scrolled in its own column, at the screen's
+   height; the annotations in the sheet. Only on a wide screen. */
+.document-view:has(.view-editor.side-by-side) {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+:where(.document-view) .view-workspace:has(> .view-editor.side-by-side) {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: 120rem;
+  margin: 0 auto;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+:where(.document-view)
+  .view-workspace.with-outline:has(> .view-editor.side-by-side) {
+  grid-template-columns: var(--outline-width) minmax(0, 1fr);
+  padding-left: 1.5rem;
+}
+:where(.document-view)
+  .view-workspace:has(> .view-editor.side-by-side)
+  > .view-outline {
+  min-height: 0;
+}
+:where(.document-view)
+  .view-workspace:has(> .view-editor.side-by-side)
+  > .view-outline
+  > .outline-holder {
+  position: static;
+  align-self: stretch;
+  max-height: none;
+}
+:where(.document-view) .view-editor.side-by-side {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  column-gap: 2.5rem;
+  min-height: 0;
+}
+:where(.document-view) .view-editor.side-by-side > .column-tools {
+  grid-column: 1 / -1;
+}
+:where(.document-view) .view-editor.side-by-side > .cm-editor {
+  grid-column: 1;
+  grid-row: 2;
+  min-height: 0;
+}
+:where(.document-view) .view-editor.side-by-side > .cm-editor > .cm-scroller {
+  overflow: auto;
+}
+:where(.document-view) .view-editor.side-by-side > .preview {
+  grid-column: 2;
+  grid-row: 2;
+  min-height: 0;
+  overflow: auto;
+  padding-left: 2.5rem;
+  border-left: 1px solid var(--rule);
+}
+@container document-view (max-width: 56.25rem) {
+  :where(.document-view) .view-topbar .modes {
+    display: flex;
+  }
+  :where(.document-view) .view-topbar .modes button {
+    flex: 1;
+    justify-content: center;
+  }
+  :where(.document-view) .view-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+    padding: 0.25rem 1rem 0;
+  }
+  :where(.document-view) .view-annotations {
+    padding-top: 0;
+  }
+  :where(.document-view) .view-editor {
+    --text-inset: 1rem;
+  }
+}
+
+/* A first hint (ADR-0064, AC4, AC5), under its line; its frame is the
+   editor's theme's, which CodeMirror's own would beat here. */
+:where(.document-view) .first-hint {
+  max-width: min(24rem, 80vw);
+  padding: 0.5rem 0.75rem;
+  font: var(--font-ui-size) / 1.45 var(--font-ui);
+}
+:where(.document-view) .first-hint p {
+  margin: 0;
+}
+:where(.document-view) .first-hint-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* ---------------------------------------------------------------- dialogs */
+
+:where(.document-view) .dialog {
+  width: min(36rem, calc(100vw - 1.5rem));
+  max-height: calc(100vh - 3rem);
+  overflow: auto;
+  padding: 0;
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+/* The writing help, a table of three columns: wider, where the window
+   lets it (phase 37c). */
+:where(.document-view) .dialog.help-dialog {
+  width: min(64rem, calc(100vw - 1.5rem));
+}
+:where(.document-view) .dialog::backdrop {
+  background: rgb(15 20 30 / 0.4);
+}
+:where(.document-view) .dialog > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1rem 0.25rem;
+}
+:where(.document-view) .dialog h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+:where(.document-view) .dialog-close {
+  font-size: 1.4rem;
+}
+:where(.document-view) .dialog-body {
+  padding: 0 1rem 1rem;
+}
+:where(.document-view) .document-dialog .dialog-body > section {
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--rule);
+}
+:where(.document-view) .document-dialog .dialog-body > section:first-child {
+  border-top: 0;
+}
+:where(.document-view) .document-dialog .dialog-body > section:empty {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- editor */
+
+/* The writing surface, framed: where to click and type (phase 10). The
+   page's own editor only, a child of the column: a host's (Obsidian's, in
+   its `.markdown-source-view`, phase 17) keeps its own look, fonts and
+   selection. */
+:where(.document-view) .view-editor > .cm-editor {
+  min-height: 60vh;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-m);
+  background: var(--paper);
+}
+:where(.document-view) .view-editor > .cm-editor:hover {
+  border-color: var(--muted);
+}
+:where(.document-view) .view-editor > .cm-editor.cm-focused {
+  outline: none;
+  border-color: var(--pencil);
+  box-shadow: 0 0 0 3px var(--pencil-bg);
+}
+:where(.document-view) .view-editor > .cm-editor > .cm-scroller {
+  min-height: inherit;
+}
+:where(.document-view) .view-editor > .cm-editor > .cm-scroller {
+  overflow: visible;
+}
+/* The document's text in the reading font, its markup included. */
+:where(.document-view) .view-editor > .cm-editor .cm-content {
+  font: var(--font-doc-size) / 1.7 var(--font-doc);
+}
+/* CodeMirror draws its selection and cursor for a light page; ours
+   darkens what it covers, a callout's tint included. */
+:where(.document-view) .view-editor > .cm-editor .cm-selectionBackground,
+:where(.document-view)
+  .view-editor
+  > .cm-editor.cm-focused
+  .cm-selectionBackground,
+:where(.document-view) .view-editor > .cm-editor .cm-content ::selection {
+  background: var(--selection) !important;
+}
+/* The software's version, at the end of the document menu. */
+:where(.document-view) .document-dialog .app-version {
+  margin: 1rem 0 0;
+  color: var(--muted);
+  font-size: 0.8em;
+}
+/* A host's editor's own element, hidden in History (phase 17). */
+:where(.document-view) .view-editor > [hidden] {
+  display: none !important;
+}
+/* CodeMirror sets display: flex !important; the preview takes its place. */
+:where(.document-view) .cm-editor[hidden] {
+  display: none !important;
+}
+:where(.document-view) .cm-remote-caret {
+  position: relative;
+  border-left: 2px solid;
+  margin-left: -1px;
+  margin-right: -1px;
+}
+:where(.document-view) .cm-remote-name {
+  position: absolute;
+  bottom: 100%;
+  left: -2px;
+  /* Not the line's: a list item's hanging indent (text-indent: -1.6em)
+     is inherited, and pulled the name out of its colour, its box left
+     with its padding only. */
+  text-indent: 0;
+  padding: 0 0.2rem;
+  color: var(--on-color);
+  font-size: 0.7em;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0.85;
+}
+/* A pending suggestion's text is a widget, not in the text (ADR-0018). */
+:where(.document-view) .cm-annotation-addition {
+  text-decoration: underline;
+  text-decoration-color: var(--ins);
+  color: var(--ins);
+  background: var(--ins-bg);
+}
+/* A proposed paragraph, between the lines (phase 24): set apart as the
+   paragraph it would be, never in a heading's form. Padding, not margin:
+   CodeMirror measures a block's height without its margins. */
+:where(.document-view) .cm-annotation-block {
+  padding: 0.25em 0;
+}
+:where(.document-view) .cm-annotation-deletion,
+:where(.document-view) .cm-annotation-substitution {
+  color: var(--del);
+  background: var(--del-bg);
+  text-decoration: line-through;
+  text-decoration-color: var(--del);
+}
+:where(.document-view) .cm-annotation-replacement {
+  text-decoration: underline;
+  text-decoration-color: var(--ins);
+  color: var(--ins);
+  background: var(--ins-bg);
+}
+/* A block a host's editor draws in place of its text (Obsidian's callout,
+   table, formula block), holding an annotation: framed, out of the
+   block's way; solid for the active one. */
+:where(.document-view) .cm-drawn-block {
+  box-sizing: border-box;
+  border: 2px dashed var(--pencil);
+  border-radius: 4px;
+  pointer-events: none;
+}
+:where(.document-view) .cm-drawn-block-active {
+  border-style: solid;
+}
+:where(.document-view) .cm-annotation-pending {
+  color: var(--muted);
+}
+:where(.document-view) .cm-annotation-invalid {
+  color: var(--del);
+  cursor: help;
+}
+:where(.document-view) .cm-annotation-comment {
+  color: var(--ink);
+  background: var(--comment-bg);
+  border-bottom: 2px solid var(--comment-line);
+}
+/* Under a mark, grey text takes the mark's colour: a quote's, an
+   address's, revealed markup's. On a theme's tint, grey does not always
+   keep AA (a comment on a quote, 3.81:1 in Obsidian's dark theme), and a
+   deletion on a quote would not show red. The class doubled: above the
+   editor theme's own rule. */
+:where(.document-view)
+  :is(
+    .cm-annotation-comment,
+    .cm-annotation-deletion,
+    .cm-annotation-substitution,
+    .cm-annotation-addition,
+    .cm-annotation-replacement
+  )
+  :is(.cm-md-quote, .cm-md-url, .cm-md-markup):is(
+    .cm-md-quote,
+    .cm-md-url,
+    .cm-md-markup
+  ) {
+  color: inherit;
+}
+:where(.document-view) [data-ann] {
+  cursor: pointer;
+}
+:where(.document-view) .cm-annotation-active {
+  outline: 2px solid var(--pencil);
+  outline-offset: 1px;
+  border-radius: 2px;
+}
+
+/* Who wrote (ADR-0059 §3, §4; ADR-0061): the text's tint by person, and
+   a dotted underline in their line, which tells them apart where a
+   theme's tints cannot (Obsidian's); on, the annotations give their
+   backgrounds up, their lines and colors stay. */
+:where(.document-view) .cm-author {
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: var(--author-line);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.3em;
+  text-decoration-skip-ink: none;
+}
+/* Under a highlight (Obsidian's editor puts its own around the mark), the
+   highlight's background; the person, by the underline. */
+:where(.document-view) :is(.cm-highlight, .cm-md-highlight) .cm-author {
+  background: none;
+}
+:where(.document-view) .cm-author-1 {
+  --author-line: var(--author-1-line);
+  --author-tint: var(--author-1);
+  background: var(--author-tint);
+}
+:where(.document-view) .cm-author-2 {
+  --author-line: var(--author-2-line);
+  --author-tint: var(--author-2);
+  background: var(--author-tint);
+}
+:where(.document-view) .cm-author-3 {
+  --author-line: var(--author-3-line);
+  --author-tint: var(--author-3);
+  background: var(--author-tint);
+}
+:where(.document-view) .cm-author-4 {
+  --author-line: var(--author-4-line);
+  --author-tint: var(--author-4);
+  background: var(--author-tint);
+}
+:where(.document-view) .cm-author-5 {
+  --author-line: var(--author-5-line);
+  --author-tint: var(--author-5);
+  background: var(--author-tint);
+}
+:where(.document-view) .cm-author-6 {
+  --author-line: var(--author-6-line);
+  --author-tint: var(--author-6);
+  background: var(--author-tint);
+}
+:where(.document-view) .cm-author-7 {
+  --author-line: var(--author-7-line);
+  --author-tint: var(--author-7);
+  background: var(--author-tint);
+}
+:where(.document-view) .cm-author-8 {
+  --author-line: var(--author-8-line);
+  --author-tint: var(--author-8);
+  background: var(--author-tint);
+}
+:where(.document-view) .cm-author-unknown {
+  --author-line: var(--author-unknown-line);
+  --author-tint: var(--author-unknown);
+  background: var(--author-tint);
+}
+:where(.document-view)
+  .authorship-on
+  :is(
+    .cm-annotation-comment,
+    .cm-annotation-deletion,
+    .cm-annotation-substitution,
+    .cm-annotation-addition,
+    .cm-annotation-replacement
+  ) {
+  background: none;
+}
+/* In the preview, a bar on each block's right edge, a segment per person
+   (§6): the gradient its controller sets, of the persons' lines. The left
+   edge is an annotated block's. Out of the HTML the preview compares. */
+:where(.document-view) .preview.authorship-on > [data-authors] {
+  padding-right: 0.75rem;
+  background-image: var(--authors);
+  background-repeat: no-repeat;
+  background-position: right top;
+  background-size: 0.25rem 100%;
+}
+/* A table (its content's width) and a quotation (its right margin) end
+   before the column: their bar is drawn at the column's edge (`cqw`, the
+   preview's width), from the left of their padding box, which
+   `--author-bar-shift` puts after the column's left edge (a quotation's
+   border; an annotated block's bar, before it). Not for the blocks that
+   scroll (code, formulas): a bar inside would scroll with them. */
+:where(.document-view) .preview.authorship-on {
+  container-type: inline-size;
+}
+:where(.document-view) .preview > blockquote {
+  --author-bar-shift: 3px;
+}
+:where(.document-view) .preview > [data-ann-block] {
+  --author-bar-shift: -0.6rem;
+}
+:where(.document-view)
+  .preview.authorship-on
+  > :is(table, blockquote)[data-authors] {
+  position: relative;
+  background-image: none;
+}
+:where(.document-view)
+  .preview.authorship-on
+  > :is(table, blockquote)[data-authors]::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(100cqw - 0.25rem - var(--author-bar-shift, 0px));
+  width: 0.25rem;
+  background-image: var(--authors);
+  pointer-events: none;
+}
+/* The legend, over the text, under the view's header (`top`, set by its
+   controller): in the flow, it never covers the text. Side by side, over
+   both columns, which scroll by themselves. */
+:where(.document-view) .authorship-legend {
+  position: sticky;
+  z-index: 5;
+  padding: 0.25rem 0;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+}
+:where(.document-view) .view-editor.side-by-side > .authorship-legend {
+  grid-column: 1 / -1;
+  position: static;
+}
+:where(.document-view)
+  .view-editor.side-by-side:has(> .authorship-legend:not([hidden])) {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+:where(.document-view)
+  .view-editor.side-by-side:has(> .authorship-legend:not([hidden]))
+  > :is(.cm-editor, .preview) {
+  grid-row: 3;
+}
+
+/* ---------------------------------------------------------------- preview */
+
+:where(.document-view) .preview {
+  padding: 0 0 4rem;
+  overflow-wrap: anywhere;
+  font: var(--font-doc-size) / 1.7 var(--font-doc);
+}
+/* Its text where the page's editor has it, inside its frame (phase 37b):
+   switching doesn't move it. Not side by side, where both show, nor by a
+   host's editor (Obsidian's). */
+:where(.document-view)
+  .view-editor:not(.side-by-side):has(> .cm-editor)
+  > .preview {
+  padding-inline: calc(var(--text-inset) + 1px);
+}
+/* A block whose annotation could not be placed on its text (phase 11e):
+   a bar at its edge, of its type's colour, the text where it was (a
+   quote's own rule gives way to it). */
+:where(.document-view) .preview > [data-ann-block] {
+  --bar: var(--comment-line);
+  border-left: 3px solid var(--bar);
+  margin-left: calc(-0.6rem - 3px);
+  padding-left: 0.6rem;
+  cursor: pointer;
+}
+:where(.document-view) .preview > [data-ann-type="deletion"],
+:where(.document-view) .preview > [data-ann-type="substitution"] {
+  --bar: var(--del);
+}
+:where(.document-view) .preview > [data-ann-type="addition"] {
+  --bar: var(--ins);
+}
+:where(.document-view) .preview > [data-ann-active] {
+  outline: 2px solid var(--pencil);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+:where(.document-view) .preview table {
+  border-collapse: collapse;
+}
+:where(.document-view) .preview th,
+:where(.document-view) .preview td {
+  border: 1px solid var(--rule);
+  padding: 0.2rem 0.5rem;
+}
+:where(.document-view) .preview blockquote {
+  border-left: 3px solid var(--rule);
+  margin-left: 0;
+  padding-left: 1rem;
+  color: var(--muted);
+}
+/* A callout (phase 15, decisions 4, 6, 8; *Relevé 15a*): its family's
+   colour on a tint of it, no rule, its title and icon in that colour, its
+   text the text's. Foldable: its title a summary, with a chevron. */
+:where(.document-view) .preview .md-callout {
+  --md-callout: var(--md-callout-note);
+  /* Its sides left to an annotation's bar (above). */
+  margin-block: 1em;
+  padding: 0.75rem 0.75rem 0.75rem 1.5rem;
+  border-radius: var(--radius-s);
+  background: color-mix(in srgb, var(--md-callout) 10%, transparent);
+  color: var(--ink);
+}
+:where(.document-view) .preview .md-callout-note {
+  --md-callout: var(--md-callout-note);
+}
+:where(.document-view) .preview .md-callout-abstract {
+  --md-callout: var(--md-callout-abstract);
+}
+:where(.document-view) .preview .md-callout-info {
+  --md-callout: var(--md-callout-info);
+}
+:where(.document-view) .preview .md-callout-todo {
+  --md-callout: var(--md-callout-todo);
+}
+:where(.document-view) .preview .md-callout-tip {
+  --md-callout: var(--md-callout-tip);
+}
+:where(.document-view) .preview .md-callout-success {
+  --md-callout: var(--md-callout-success);
+}
+:where(.document-view) .preview .md-callout-question {
+  --md-callout: var(--md-callout-question);
+}
+:where(.document-view) .preview .md-callout-warning {
+  --md-callout: var(--md-callout-warning);
+}
+:where(.document-view) .preview .md-callout-failure {
+  --md-callout: var(--md-callout-failure);
+}
+:where(.document-view) .preview .md-callout-danger {
+  --md-callout: var(--md-callout-danger);
+}
+:where(.document-view) .preview .md-callout-bug {
+  --md-callout: var(--md-callout-bug);
+}
+:where(.document-view) .preview .md-callout-example {
+  --md-callout: var(--md-callout-example);
+}
+:where(.document-view) .preview .md-callout-quote {
+  --md-callout: var(--md-callout-quote);
+}
+:where(.document-view) .preview .md-callout-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  /* Its own colour, unless the plugin writes it in the text's (phase 15,
+     essai 15e.2); its icon and chevron always in the family's. */
+  color: var(--md-callout-title, var(--md-callout));
+  font-weight: 600;
+}
+:where(.document-view) .preview summary.md-callout-title {
+  cursor: pointer;
+  list-style: none;
+}
+:where(.document-view)
+  .preview
+  summary.md-callout-title::-webkit-details-marker {
+  display: none;
+}
+:where(.document-view) .preview .md-callout-icon,
+:where(.document-view) .preview .md-callout-fold {
+  color: var(--md-callout);
+  display: inline-flex;
+  flex: none;
+}
+:where(.document-view) .preview .md-callout-icon svg,
+:where(.document-view) .preview .md-callout-fold svg {
+  width: 1.1em;
+  height: 1.1em;
+}
+:where(.document-view) .preview .md-callout-fold svg {
+  transition: transform 100ms ease-in-out;
+}
+:where(.document-view)
+  .preview
+  details.md-callout:not([open])
+  > summary
+  .md-callout-fold
+  svg {
+  transform: rotate(-90deg);
+}
+:where(.document-view) .preview .md-callout-content > :first-child {
+  margin-top: 0.5em;
+}
+:where(.document-view) .preview .md-callout-content > :last-child {
+  margin-bottom: 0;
+}
+:where(.document-view) .preview pre {
+  background: var(--paper-2);
+  padding: 0.5rem;
+  overflow-x: auto;
+}
+/* Highlights (ADR-0044): the text on its tint, in its own colour; in an
+   annotation's text too (ADR-0047). */
+:where(.document-view) :is(.preview, .card-text) mark {
+  background: var(--md-highlight);
+  color: inherit;
+  border-radius: 2px;
+}
+:where(.document-view) :is(.preview, .card-text) mark.md-highlight-red {
+  background: var(--md-highlight-red);
+}
+:where(.document-view) :is(.preview, .card-text) mark.md-highlight-orange {
+  background: var(--md-highlight-orange);
+}
+:where(.document-view) :is(.preview, .card-text) mark.md-highlight-yellow {
+  background: var(--md-highlight-yellow);
+}
+:where(.document-view) :is(.preview, .card-text) mark.md-highlight-green {
+  background: var(--md-highlight-green);
+}
+:where(.document-view) :is(.preview, .card-text) mark.md-highlight-blue {
+  background: var(--md-highlight-blue);
+}
+:where(.document-view) :is(.preview, .card-text) mark.md-highlight-purple {
+  background: var(--md-highlight-purple);
+}
+/* A note's properties (phase 14, decision 19): as written, set apart. */
+:where(.document-view) .preview pre.front-matter {
+  background: transparent;
+  color: var(--muted);
+  padding: 0 0 0.5rem;
+  border-bottom: 1px solid var(--rule);
+}
+/* A list's marker in a box of its own width, as in the editor (phase
+   11c.3): a sublist's marker starts where its item's text starts; a wider
+   number takes more room. The notes keep their own list. */
+:where(.document-view) .preview ul,
+:where(.document-view) .preview ol:not(.footnotes-list) {
+  padding-left: 1.6em;
+  list-style: none;
+}
+/* Floated: an item whose text is a paragraph (a loose list) keeps its
+   marker on its first line. */
+:where(.document-view) .preview ul > li::before,
+:where(.document-view) .preview ol:not(.footnotes-list) > li::before {
+  float: left;
+  min-width: 1.6em;
+  margin-left: -1.6em;
+  color: var(--muted);
+}
+:where(.document-view) .preview li > p:first-child {
+  margin-top: 0;
+}
+:where(.document-view) .preview ul > li::before {
+  content: "•";
+}
+:where(.document-view) .preview ol:not(.footnotes-list) > li::before {
+  content: counter(list-item) ". ";
+}
+:where(.document-view) .preview li.task-list-item {
+  list-style: none;
+}
+:where(.document-view) .preview ul > li.task-list-item::before {
+  content: none;
+}
+/* Read only, not greyed out (render.ts): no click ticks it. */
+:where(.document-view) li.task-list-item input[aria-disabled="true"] {
+  pointer-events: none;
+  accent-color: var(--pencil);
+}
+/* The box is the item's marker, floated like the others. */
+:where(.document-view) .preview li.task-list-item input {
+  float: left;
+  width: 1em;
+  height: 1em;
+  margin: 0.35em 0 0 -1.6em;
+}
+/* A numbered task keeps its number as its marker, its box starting its
+   text, as in the editor: floated, the box would cover the number. */
+:where(.document-view) .preview ol > li.task-list-item input {
+  float: none;
+  margin: 0 0.3em 0 0;
+  vertical-align: middle;
+}
+:where(.document-view) .preview img {
+  max-width: 100%;
+}
+:where(.document-view) .preview .remote-image::before {
+  content: "🖼 ";
+}
+/* A remote image not shown (ADR-0055 §3): its link, its domain, its
+ * button; or, under a caret, that it waits (§12). */
+:where(.document-view) .preview .remote-image-case,
+:where(.document-view) .cm-live-remote-image-case {
+  display: inline-flex;
+  margin-left: 0.25rem;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.1rem 0.4rem;
+  padding: 0 0.3rem;
+  border: 1px dashed var(--rule);
+  border-radius: 4px;
+}
+:where(.document-view) .remote-image-host,
+:where(.document-view) .remote-image-waiting,
+:where(.document-view) .remote-image-from {
+  color: var(--muted);
+  font-size: 0.8em;
+}
+:where(.document-view) .remote-image-waiting {
+  font-style: italic;
+}
+:where(.document-view) .remote-image-grant {
+  font-size: 0.8em;
+}
+/* Shown, its domain under it (§13). */
+:where(.document-view) .preview .remote-image-shown,
+:where(.document-view) .cm-live-remote-image {
+  display: inline-flex;
+  flex-direction: column;
+  /* Each at its own width: an image never stretched to its caption's. */
+  align-items: flex-start;
+  max-width: 100%;
+}
+/* An attached image (ADR-0057 §8) not shown yet, or never: its text and
+ * why, in a frame of its own; shown, the image alone, within the column. */
+:where(.document-view) .attached-image:not([data-drawn]),
+:where(.document-view) .attached-image:has(.attached-image-note),
+:where(.document-view) .cm-live-attached-image:has(.attached-image-note) {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.1rem 0.4rem;
+  padding: 0 0.3rem;
+  border: 1px dashed var(--rule);
+  border-radius: 4px;
+}
+:where(.document-view) .attached-image .attached-image-text::before,
+:where(.document-view) .cm-live-attached-image .attached-image-text::before {
+  content: "🖼 ";
+}
+:where(.document-view) .attached-image-note {
+  color: var(--muted);
+  font-size: 0.8em;
+}
+:where(.document-view) .attached-image-loading .attached-image-note {
+  font-style: italic;
+}
+/* An upload under way (ADR-0057 §8): a line under the text, its cancel. */
+:where(.document-view) .image-uploads:empty {
+  display: none;
+}
+:where(.document-view) .image-upload {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+/* A [[…]] to a note of someone's vault, or a block (phase 19): its text,
+ * set apart from a link, its title saying why. */
+:where(.document-view) .preview .md-wikilink-local {
+  color: var(--muted);
+  text-decoration: underline dotted;
+  cursor: help;
+}
+:where(.document-view) .preview .math-display {
+  display: block;
+  overflow-x: auto;
+}
+/* Diagrams (ADR-0042): Pele's variables on our tokens, so they follow the
+ * theme without being drawn again; its font, which it measures labels
+ * with, read by the preview from here. */
+:where(.document-view) .preview .mermaid {
+  --pele-bg: var(--paper);
+  --pele-fg: var(--ink);
+  --pele-muted: var(--muted);
+  --pele-line: var(--ink);
+  --pele-surface: var(--paper-2);
+  --pele-surface-alt: var(--code-bg);
+  --pele-border: var(--muted);
+  --pele-accent: var(--pencil);
+  --pele-critical: var(--del);
+  --pele-error: var(--del);
+  --pele-series-1: var(--md-callout-note);
+  --pele-series-2: var(--md-callout-question);
+  --pele-series-3: var(--md-callout-success);
+  --pele-series-4: var(--md-callout-failure);
+  --pele-series-5: var(--md-callout-abstract);
+  --pele-series-6: var(--comment-line);
+  --pele-series-7: var(--md-callout-example);
+  --pele-series-8: var(--md-callout-quote);
+  --pele-font: var(--font-ui);
+  --pele-font-mono: var(--font-code);
+  --pele-radius: var(--radius-s);
+  font-size: 0.9375rem;
+}
+:where(.document-view) .preview .mermaid > svg {
+  display: block;
+  margin: 0 auto;
+}
+:where(.document-view) .preview .render-error {
+  color: var(--del);
+  font-family: var(--font-code);
+  white-space: pre-wrap;
+}
+
+/* ---------------------------------------------------------------- history */
+
+:where(.document-view) .history-changes pre {
+  white-space: pre-wrap;
+  font: var(--font-doc-size) / 1.7 var(--font-doc);
+}
+/* Inserted and deleted text, wherever it is shown: cards, history. */
+:where(.document-view) ins {
+  color: var(--ins);
+  background: var(--ins-bg);
+  text-decoration: none;
+  border-radius: 2px;
+}
+:where(.document-view) del {
+  color: var(--del);
+  background: var(--del-bg);
+  border-radius: 2px;
+}

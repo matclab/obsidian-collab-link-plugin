@@ -1,0 +1,21 @@
+{
+  "name": "obsidian-collab-client",
+  "version": "0.8.3",
+  "license": "Apache-2.0",
+  "private": true,
+  "description": "Reference client library of the obsidian-collab protocol (docs/protocol/): connect to a document, read and write it, end to end encrypted.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "loro-crdt": "^1.16.4"
+  },
+  "scripts": {
+    "build": "node build.mjs"
+  }
+}

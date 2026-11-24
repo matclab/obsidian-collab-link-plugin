@@ -1,0 +1,10 @@
+{
+  "name": "collab-link",
+  "version": "0.8.3",
+  "private": true,
+  "description": "Co-edit a note with anyone through a link, here or in a web browser: in real time and offline, end-to-end encrypted, with comments and suggestions.",
+  "license": "Apache-2.0",
+  "scripts": {
+    "build": "cd web && npm ci && cd ../obsidian && ln -sfn ../web/node_modules node_modules && npm run build"
+  }
+}
