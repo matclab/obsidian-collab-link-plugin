@@ -323,6 +323,35 @@ try {
     }, VIEW);
     if (Math.abs(gap) > 0.5)
       problems.push(`${label}: ${gap}px above the header`);
+    // The view's buttons drawn by the page, not framed by Obsidian's
+    // `--input-shadow` (on every `button` of its own); a pressed one of a
+    // segmented control keeps the page's shadow.
+    const framed = await page.evaluate((view) => {
+      const root = document.querySelector(`${view} .document-view`);
+      if (!root) return [];
+      const probe = document.createElement("span");
+      probe.style.boxShadow = "var(--input-shadow)";
+      document.body.append(probe);
+      const obsidian = getComputedStyle(probe).boxShadow;
+      probe.remove();
+      const found = [];
+      for (const button of root.querySelectorAll("button")) {
+        if (!button.checkVisibility()) continue;
+        const shadow = getComputedStyle(button).boxShadow;
+        const pressed = button.matches(
+          ".segmented button[aria-pressed='true']",
+        );
+        if (pressed ? shadow === "none" : shadow === obsidian)
+          found.push(
+            `${button.className || button.textContent.trim().slice(0, 20)}${pressed ? " (pressed, no shadow)" : ""}`,
+          );
+      }
+      return obsidian === "none" ? [] : found;
+    }, VIEW);
+    if (framed.length > 0)
+      problems.push(
+        `${label}: buttons framed by Obsidian's shadow: ${framed.join(", ")}`,
+      );
     // In History, its versions on screen: Obsidian's editor's element,
     // left over the history, put them far below an empty screen.
     if (label.endsWith("-history")) {

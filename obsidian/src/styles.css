@@ -221,6 +221,21 @@
   user-select: text;
 }
 
+/* Obsidian frames every `button` with its `--input-shadow` (its rule,
+   `button:not(.clickable-icon)`, outweighs the page's base one): in the
+   view, the page draws its buttons, their pressed shadow included
+   (check-ui.mjs). */
+.collab-link-view .document-view {
+  --input-shadow: none;
+  --input-shadow-hover: none;
+}
+
+/* "Open a link": the link's field across the dialog (a class, not a style
+   set by the code, as Obsidian asks). */
+.collab-link-link {
+  width: 100%;
+}
+
 /* What the plugin says under the view (decision 21). */
 .collab-link-message {
   color: var(--text-muted);

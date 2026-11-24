@@ -18,6 +18,7 @@ import {
   type CalloutFamily,
   leavingHref,
   renderMarkdown,
+  setRenderedHtml,
 } from "../render/index.js";
 import { calloutOf } from "./callout-node.js";
 import {
@@ -311,7 +312,7 @@ class TableWidget extends WidgetType {
   override toDOM(view: EditorView): HTMLElement {
     const element = document.createElement("div");
     element.className = "cm-live-table";
-    element.innerHTML = renderMarkdown(this.source);
+    setRenderedHtml(element, renderMarkdown(this.source));
     place(element, this.at);
     for (const formula of Array.from(
       element.querySelectorAll<HTMLElement>(".math"),

@@ -3,8 +3,16 @@
 // CommonJS `main.js`, Loro's WebAssembly inside it (`loro-crdt/base64`),
 // and `manifest.json`. Every dependency is web/'s: `node_modules` is a
 // link to `../web/node_modules`.
-import { copyFileSync, mkdirSync, readFileSync, rmSync } from "node:fs";
-import { join } from "node:path";
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { build } from "esbuild";
 import sveltePlugin from "esbuild-svelte";
@@ -58,6 +66,9 @@ export async function buildPlugin({
   rmSync(outdir, { recursive: true, force: true });
   mkdirSync(outdir, { recursive: true });
   const result = await build({
+    // The plugin's directory, wherever the build is started from: the alias
+    // below resolves from it, and the bundle's path comments name from it.
+    absWorkingDir: here("."),
     entryPoints: [here("src/main.ts")],
     outfile: join(outdir, "main.js"),
     bundle: true,
@@ -68,14 +79,13 @@ export async function buildPlugin({
     external: ["obsidian", ...OBSIDIAN_GIVES],
     alias: { "loro-crdt": "loro-crdt/base64" },
     plugins: [sveltePlugin({ compilerOptions: { css: "injected" } })],
-    // KaTeX's sheet is in styles.css: nothing to link (`loadKatex`).
-    define: { KATEX_STYLESHEET: JSON.stringify("") },
     minify,
     logLevel,
     metafile: true,
   });
   // The view's styles, Obsidian's `styles.css` (decisions 7, 24, 25).
-  await build({
+  const styles = await build({
+    absWorkingDir: here("."),
     entryPoints: [here("src/styles.css")],
     outfile: join(outdir, "styles.css"),
     bundle: true,
@@ -83,9 +93,33 @@ export async function buildPlugin({
     plugins: [katexForObsidian],
     minify,
     logLevel,
+    metafile: true,
   });
   copyFileSync(here("manifest.json"), join(outdir, "manifest.json"));
-  return result;
+  return { ...result, styles };
+}
+
+/** What the build reads, from the repository's root (obsidian/'s parent),
+ * the dependencies left out: the plugin's source, which its GitHub
+ * repository holds (scripts/plugin-mirror.mjs). */
+export async function sources() {
+  const outdir = mkdtempSync(join(tmpdir(), "collab-link-sources-"));
+  try {
+    const built = await buildPlugin({ outdir, logLevel: "silent" });
+    const root = here("..");
+    const read = new Set();
+    for (const metafile of [built.metafile, built.styles.metafile]) {
+      for (const input of Object.keys(metafile.inputs)) {
+        const path = resolve(here("."), input);
+        if (!path.includes("node_modules") && existsSync(path)) {
+          read.add(relative(root, path));
+        }
+      }
+    }
+    return [...read].sort();
+  } finally {
+    rmSync(outdir, { recursive: true, force: true });
+  }
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

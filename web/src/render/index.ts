@@ -25,4 +25,10 @@ export {
   renderMarkdownBlocks,
 } from "./render.js";
 export { loadableImageSource } from "./remote-image.js";
+export {
+  type RenderedHtml,
+  katexHtml,
+  peleSvg,
+  setRenderedHtml,
+} from "./trusted-html.js";
 export { type Wikilink, type WikilinkKind, readWikilink } from "./wikilink.js";

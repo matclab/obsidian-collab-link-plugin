@@ -8,7 +8,7 @@ import { mkdtempSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { beforeAll, describe, expect, test } from "vitest";
-import { buildPlugin } from "../build.mjs";
+import { buildPlugin, sources } from "../build.mjs";
 
 const PLUGIN = resolve(import.meta.dirname, "..");
 
@@ -255,5 +255,28 @@ describe("the plugin's styles", () => {
 
   test("leave main.js loading no KaTeX sheet: it is in styles.css", () => {
     expect(main).not.toContain("katex.min.css");
+  });
+});
+
+// The plugin's GitHub repository holds these, not the whole page
+// (scripts/plugin-mirror.mjs, docs/phase-41-lint-de-l-annuaire-obsidian.md):
+// what Obsidian's directory reads and builds is the plugin's source.
+describe("the plugin's sources", () => {
+  let found: string[];
+  beforeAll(async () => {
+    found = await sources();
+  }, 120_000);
+
+  test("are what its build reads, JavaScript and styles, from the repository's root", () => {
+    expect(found).toContain("obsidian/src/main.ts");
+    expect(found).toContain("web/src/embed.ts");
+    expect(found).toContain("web/lib/src/index.ts");
+    expect(found).toContain("web/src/styles/page.css");
+    expect(found.some((path) => path.endsWith(".svelte"))).toBe(true);
+  });
+
+  test("leave out the page's own, and the dependencies", () => {
+    expect(found).not.toContain("web/src/main.ts");
+    expect(found.filter((path) => path.includes("node_modules"))).toEqual([]);
   });
 });

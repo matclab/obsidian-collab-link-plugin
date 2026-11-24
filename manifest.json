@@ -1,7 +1,7 @@
 {
   "id": "collab-link",
   "name": "Collab Link",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "minAppVersion": "1.11.4",
   "description": "Co-edit a note with anyone through a link, here or in a web browser: in real time and offline, end-to-end encrypted, with comments and suggestions.",
   "author": "matclab",

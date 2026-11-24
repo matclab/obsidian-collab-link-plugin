@@ -17,7 +17,6 @@ export class OpenLinkModal extends Modal {
     input.type = "url";
     input.className = "collab-link-link";
     input.setAttribute("aria-label", t().pluginLinkLabel);
-    input.style.width = "100%";
     const open = doc.createElement("button");
     open.className = "mod-cta";
     open.textContent = t().pluginOpen;

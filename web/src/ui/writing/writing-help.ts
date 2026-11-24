@@ -2,7 +2,7 @@ import { mount } from "svelte";
 import { constructName } from "../../editor/construct-name.js";
 import type { ConstructId } from "../../editor/constructs.js";
 import { t } from "../../i18n/index.js";
-import { renderMarkdown } from "../../render/index.js";
+import { renderMarkdown, setRenderedHtml } from "../../render/index.js";
 import { createDialog } from "../dialogs/dialog.js";
 import Help from "./WritingHelp.svelte";
 import { shortcutLabels } from "./format-toolbar.js";
@@ -148,7 +148,7 @@ export const HELP_ENTRIES: readonly HelpEntry[] = [
  * reader as the preview names it. */
 export function renderExample(source: string): string {
   const template = document.createElement("template");
-  template.innerHTML = renderMarkdown(source);
+  setRenderedHtml(template, renderMarkdown(source));
   for (const box of Array.from(
     template.content.querySelectorAll("input[type=checkbox]"),
   )) {

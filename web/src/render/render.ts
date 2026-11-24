@@ -20,6 +20,7 @@ import {
   defaultCalloutTitle,
 } from "./callout.js";
 import { loadableImageSource } from "./remote-image.js";
+import { type RenderedHtml, markdownItHtml } from "./trusted-html.js";
 import { type Wikilink, readWikilink } from "./wikilink.js";
 
 type PluginSimple = (md: Md) => void;
@@ -655,8 +656,8 @@ export function leavingHref(href: string): string | null {
 export function renderMarkdown(
   source: string,
   grantedImage: GrantedImage = NONE_GRANTED,
-): string {
-  return md.render(source, { grantedImage });
+): RenderedHtml {
+  return markdownItHtml(md.render(source, { grantedImage }));
 }
 
 /** Whether `text` may hold an image to an https address: without both,
@@ -694,7 +695,7 @@ export function renderMarkdownBlocks(
   source: string,
   grantedImage: GrantedImage = NONE_GRANTED,
 ): {
-  html: string;
+  html: RenderedHtml;
   lines: [number, number][];
 } {
   const env = { grantedImage };
@@ -706,5 +707,8 @@ export function renderMarkdownBlocks(
       lines.push([token.map[0], token.map[1]]);
     }
   }
-  return { html: md.renderer.render(tokens, md.options, env), lines };
+  return {
+    html: markdownItHtml(md.renderer.render(tokens, md.options, env)),
+    lines,
+  };
 }

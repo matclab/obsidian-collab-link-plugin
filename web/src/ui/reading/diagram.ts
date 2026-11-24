@@ -1,4 +1,5 @@
 import type { RenderOptions } from "pele";
+import { peleSvg, setRenderedHtml } from "../../render/index.js";
 
 /** What every diagram is drawn with, whatever its source says (ADR-0042,
  * decisions 3 and 5): no link, no image (a request would tell a third
@@ -72,7 +73,7 @@ export class DiagramRefused extends Error {}
  * anything else — a refusal, never a cleaning. */
 export function checkedDiagram(markup: string, document: Document): Element {
   const template = document.createElement("template");
-  template.innerHTML = markup;
+  setRenderedHtml(template, peleSvg(markup));
   const nodes = Array.from(template.content.childNodes);
   const root = template.content.firstElementChild;
   if (

@@ -1,10 +1,20 @@
 # Changelog
 
-Notable changes to Collab Link, the Obsidian plugin, as its users see them, including what changes in the view it shares with the web page. The whole project's changes: [CHANGELOG.md](https://gitlab.com/matclab/obsidian-collab-link/-/blob/v0.8.4/CHANGELOG.md).
+Notable changes to Collab Link, the Obsidian plugin, as its users see them, including what changes in the view it shares with the web page. The whole project's changes: [CHANGELOG.md](https://gitlab.com/matclab/obsidian-collab-link/-/blob/v0.8.5/CHANGELOG.md).
 
 Form: [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/). Versions: [SemVer](https://semver.org/), the project's. Each release on GitHub takes its section as notes.
 
 ## [Unreleased]
+
+## [0.8.5] - 2026-11-24
+
+### Changed
+
+- Its GitHub repository holds the plugin's source only: of the web page, what the plugin's build reads.
+
+### Fixed
+
+- The view's buttons (a card's head, its key, Reply, the filters and modes not chosen) no longer wear the frame Obsidian draws around its own.
 
 ## [0.8.4] - 2026-11-24
 

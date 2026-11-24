@@ -3,7 +3,13 @@ import type { EditorView } from "@codemirror/view";
 import { WidgetType } from "@codemirror/view";
 import { t } from "../i18n/index.js";
 import { count } from "../perf/index.js";
-import { type CalloutFamily, calloutIcon } from "../render/index.js";
+import {
+  type CalloutFamily,
+  type RenderedHtml,
+  calloutIcon,
+  katexHtml,
+  setRenderedHtml,
+} from "../render/index.js";
 import type {
   AttachedImages,
   AttachedState,
@@ -23,7 +29,7 @@ export const katexLoader = Facet.define<
 
 /** Formulas drawn, by mode and TeX: a widget drawn again (scrolled back,
  * its line left) costs no KaTeX. Bounded: the oldest go first. */
-const drawn = new Map<string, string>();
+const drawn = new Map<string, RenderedHtml>();
 const DRAWN_MAX = 500;
 
 /** Draws a formula into `element`: its source until KaTeX is
@@ -41,7 +47,7 @@ export function drawFormula(
   const key = `${display ? "D" : "I"}${tex}`;
   const html = drawn.get(key);
   if (html !== undefined) {
-    element.innerHTML = html;
+    setRenderedHtml(element, html);
     return;
   }
   element.textContent = tex;
@@ -52,17 +58,19 @@ export function drawFormula(
       let rendered = drawn.get(key);
       if (rendered === undefined) {
         count("katex.render");
-        rendered = katex.renderToString(tex, {
-          ...KATEX_OPTIONS,
-          displayMode: display,
-        });
+        rendered = katexHtml(
+          katex.renderToString(tex, {
+            ...KATEX_OPTIONS,
+            displayMode: display,
+          }),
+        );
         drawn.set(key, rendered);
         if (drawn.size > DRAWN_MAX) {
           const oldest = drawn.keys().next().value;
           if (oldest !== undefined) drawn.delete(oldest);
         }
       }
-      element.innerHTML = rendered;
+      setRenderedHtml(element, rendered);
     })
     .catch((error: unknown) => {
       // The source stays; tried again when the widget is drawn again.
@@ -294,7 +302,7 @@ export class CalloutHeaderWidget extends WidgetType {
     const icon = document.createElement("span");
     icon.className = "cm-live-callout-icon";
     // A fixed drawing (`render/callout-icons.ts`), never the document's.
-    icon.innerHTML = calloutIcon(this.family);
+    setRenderedHtml(icon, calloutIcon(this.family));
     header.append(icon);
     if (this.title) {
       const title = document.createElement("span");

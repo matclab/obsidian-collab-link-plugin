@@ -6,8 +6,11 @@ import { t } from "../../i18n/index.js";
 import { count, span } from "../../perf/index.js";
 import {
   type GrantedImage,
+  type RenderedHtml,
+  katexHtml,
   remoteImageSources,
   renderMarkdownBlocks,
+  setRenderedHtml,
 } from "../../render/index.js";
 import type { AttachedImages } from "../../view-model/attached-images.js";
 import {
@@ -94,11 +97,11 @@ function showError(placeholder: Element, error: unknown): void {
  * holds the rendering each child came from. */
 function reconcile(
   root: Element,
-  html: string,
+  html: RenderedHtml,
   origins: WeakMap<Node, string>,
 ): void {
   const template = document.createElement("template");
-  template.innerHTML = html;
+  setRenderedHtml(template, html);
   // A task's box, named for a screen reader, as the editor's.
   for (const box of Array.from(
     template.content.querySelectorAll("input[type=checkbox]"),
@@ -342,7 +345,7 @@ export function createTextPreview(
   let katex: Promise<KatexModule> | undefined;
   let pele: Promise<DiagramModule> | undefined;
   const origins = new WeakMap<Node, string>();
-  const formulas = new Map<string, string>();
+  const formulas = new Map<string, RenderedHtml>();
   // A diagram's outcome by source, refusals included (no retry per burst).
   const diagrams = new Map<string, Promise<Element>>();
   const rendered: (() => void)[] = [];
@@ -459,10 +462,12 @@ export function createTextPreview(
       let html = formulas.get(key);
       if (html === undefined) {
         count("katex.render");
-        html = engine.renderToString(tex, { ...KATEX_OPTIONS, displayMode });
+        html = katexHtml(
+          engine.renderToString(tex, { ...KATEX_OPTIONS, displayMode }),
+        );
         formulas.set(key, html);
       }
-      placeholder.innerHTML = html;
+      setRenderedHtml(placeholder, html);
       placeholder.dataset.drawn = "";
     }
   };

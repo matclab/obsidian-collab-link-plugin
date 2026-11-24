@@ -42,6 +42,7 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import { type RenderedHtml, ownDrawing } from "./trusted-html.js";
 
 // Phase 15, decision 6: one icon per family, the one Obsidian draws
 // (*Relevé 15a*), shared by the editor (a widget) and the preview (a
@@ -89,8 +90,8 @@ const svg = (drawing: string): string =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${drawing}</svg>`;
 
 /** A family's icon, as SVG markup. */
-export function calloutIcon(family: CalloutFamily): string {
-  return svg(DRAWINGS[family]);
+export function calloutIcon(family: CalloutFamily): RenderedHtml {
+  return ownDrawing(svg(DRAWINGS[family]));
 }
 
 /** The chevron of a foldable callout, as SVG markup. */
