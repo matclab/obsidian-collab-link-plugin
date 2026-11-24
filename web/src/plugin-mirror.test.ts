@@ -35,6 +35,12 @@ describe("the README at the mirror's root", () => {
     );
   });
 
+  test("keeps the pictures beside it, copied into the mirror", () => {
+    expect(rootReadme("![The view](../docs/images/view.png)\n", "1.2.3")).toBe(
+      "![The view](docs/images/view.png)\n",
+    );
+  });
+
   test("leaves other links, and code, as they are", () => {
     const text =
       "[web](https://x.org/a) [here](#use) `![…](Collab%20Link/images/x.png)`\n";
@@ -94,6 +100,8 @@ describe("writing the mirror", () => {
       "obsidian/src/main.ts": "export {};\n",
       "web/src/page.ts": "export {};\n",
       "obsidian/CHANGELOG.md": CHANGELOG,
+      "docs/images/view.png": "png\n",
+      "docs/adr/0001.md": "# ADR\n",
       "server/Cargo.toml": "[workspace]\n",
     });
     git(source, "add", "-A");
@@ -138,6 +146,8 @@ describe("writing the mirror", () => {
       );
       expect(at("obsidian/src/main.ts")).toBe("export {};\n");
       expect(at("web/src/page.ts")).toBe("export {};\n");
+      expect(at("docs/images/view.png")).toBe("png\n");
+      expect(existsSync(join(mirror, "docs/adr"))).toBe(false);
       // The plugin's changelog, the release's notes taken from it.
       expect(at("CHANGELOG.md")).toBe(
         `# Changelog\n\n## [Unreleased]\n\n## [1.2.3] - 2026-01-01\n\n- [Fixed](${SOURCE}/-/blob/v1.2.3/docs/x.md).\n`,

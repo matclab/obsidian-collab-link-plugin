@@ -1,6 +1,6 @@
 {
   "name": "obsidian-collab-client",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "license": "Apache-2.0",
   "private": true,
   "description": "Reference client library of the obsidian-collab protocol (docs/protocol/): connect to a document, read and write it, end to end encrypted.",

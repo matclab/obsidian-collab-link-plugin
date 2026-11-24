@@ -1,10 +1,14 @@
 # Changelog
 
-Notable changes to Collab Link, the Obsidian plugin, as its users see them, including what changes in the view it shares with the web page. The whole project's changes, in French: [CHANGELOG.md](https://gitlab.com/matclab/obsidian-collab-link/-/blob/v0.8.3/CHANGELOG.md).
+Notable changes to Collab Link, the Obsidian plugin, as its users see them, including what changes in the view it shares with the web page. The whole project's changes: [CHANGELOG.md](https://gitlab.com/matclab/obsidian-collab-link/-/blob/v0.8.4/CHANGELOG.md).
 
 Form: [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/). Versions: [SemVer](https://semver.org/), the project's. Each release on GitHub takes its section as notes.
 
 ## [Unreleased]
+
+## [0.8.4] - 2026-11-24
+
+No change in the plugin itself: released with the project.
 
 ## [0.8.3] - 2026-11-24
 

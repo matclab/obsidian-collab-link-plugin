@@ -1,6 +1,6 @@
 {
   "name": "collab-link",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "private": true,
   "description": "Co-edit a note with anyone through a link, here or in a web browser: in real time and offline, end-to-end encrypted, with comments and suggestions.",
   "license": "Apache-2.0",

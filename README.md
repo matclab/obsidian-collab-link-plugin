@@ -1,16 +1,36 @@
 # Collab Link — an Obsidian plugin
 
-Write a note with others, in real time and offline, end-to-end encrypted, with comments and suggestions. The note lives on an [obsidian-collab](https://gitlab.com/matclab/obsidian-collab-link/-/blob/v0.8.3/README.md) server; anyone with its link can open it, in Obsidian with this plugin or in a browser with nothing to install.
+Write a note with others, in real time and offline, end-to-end encrypted, with comments and suggestions. Anyone with its link can open it, in Obsidian with this plugin or in a browser with nothing to install.
 
-It is a client of the [protocol](https://gitlab.com/matclab/obsidian-collab-link/-/blob/v0.8.3/docs/protocol/README.md) like the web page, built on the same [library](https://gitlab.com/matclab/obsidian-collab-link/-/blob/v0.8.3/web/lib/README.md), and shows the page's own view inside Obsidian, where you write in **Obsidian's own editor** (decisions: [ADR-0036](https://gitlab.com/matclab/obsidian-collab-link/-/blob/v0.8.3/docs/adr/0036-plugin-obsidian-dans-le-projet.md), [ADR-0039](https://gitlab.com/matclab/obsidian-collab-link/-/blob/v0.8.3/docs/adr/0039-editeur-obsidian-dans-la-vue.md), [`docs/phase-14-plugin-obsidian.md`](https://gitlab.com/matclab/obsidian-collab-link/-/blob/v0.8.3/docs/phase-14-plugin-obsidian.md), [`docs/phase-17-editeur-natif-obsidian.md`](https://gitlab.com/matclab/obsidian-collab-link/-/blob/v0.8.3/docs/phase-17-editeur-natif-obsidian.md)).
+<!-- These pictures are made by scripts, never by hand: `node scripts/readme-shot.mjs` in obsidian/ and `node scripts/ui/readme-shot.mjs` in web/ write docs/images/. Take them again whenever what they show changes (AGENTS.md §5). -->
+![A shared note in Obsidian: the plugin's view, with a suggestion, a deletion and a comment thread in the margin](docs/images/obsidian-annotated.png)
+
+The same document, in a browser:
+
+![The same document in a web browser, with the same annotations](docs/images/page-annotated.png)
+
+**What it is for**: sharing a few notes for a while, to work on them with others — then, the work done, **unlinking** them, to keep them in your vault as ordinary notes. Links between the notes you share follow along: shared, they open for whoever has the other note's document; unlinked, they are `[[…]]` to your notes again.
 
 Desktop only for now (`isDesktopOnly`); Obsidian 1.11.4 or later.
 
-**What it is for**: sharing a few notes for a while, to work on them with others — then, the work done, **unlinking** them, to keep them in your vault as ordinary notes. Links between the notes you share follow along: shared, they open for whoever has the other note's document; unlinked, they are `[[…]]` to your notes again ([ADR-0045](https://gitlab.com/matclab/obsidian-collab-link/-/blob/v0.8.3/docs/adr/0045-liens-entre-notes-et-documents.md), [`docs/phase-19-liens.md`](https://gitlab.com/matclab/obsidian-collab-link/-/blob/v0.8.3/docs/phase-19-liens.md)).
+## A server first
+
+**The plugin needs an obsidian-collab server**, deployed by you or your organisation: there is no public one. A shared note's document lives there, encrypted, and so does *My documents*. The server is free software, in the same repository as the plugin: one Rust executable that serves the web page and the API and keeps its data in a SQLite file, behind a reverse proxy that terminates TLS, with Docker or systemd — see the **[deployment guide](https://gitlab.com/matclab/obsidian-collab-link/-/blob/v0.8.4/deploy/README.md)**. A second executable, optional, the identity gateway, connects it to your organisation's OpenID Connect sign-in, for names shown as verified. Then write the server's address in the plugin's settings.
+
+## Network use
+
+The plugin connects only to:
+
+- **the server of its settings, and the server each link you open names**: to send and receive the documents' changes, their attached images and *My documents*, all encrypted end to end on your device. The server sees encrypted blobs, document ids, sizes, the rhythm of changes, IP addresses and each connection's role — never the text, the keys or the pseudonyms.
+- **the identity gateway of its settings**, only if you set one: to sign in (in the system's browser) and get your name attested. The gateway never sees a document.
+- **the push service of Obsidian's browser engine**, only if you turn on notifications in the view: the server posts your alerts there, encrypted for your device; the push service never reads them.
+- **other sites' images** that a document's text cites, only where Obsidian itself renders the note (see *Limits*), or once you allow them in the view.
+
+No account is needed (the gateway is optional), no telemetry, no other service. The plugin is a client of the open [protocol](https://gitlab.com/matclab/obsidian-collab-link/-/blob/v0.8.4/docs/protocol/README.md), like the web page, built on the same [library](https://gitlab.com/matclab/obsidian-collab-link/-/blob/v0.8.4/web/lib/README.md); it shows the page's own view inside Obsidian, where you write in **Obsidian's own editor**.
 
 ## Install
 
-Not in the community catalogue yet. From this repository (Node.js 22 or later):
+Once listed in Obsidian's community plugins: *Settings → Community plugins → Browse*, search for *Collab Link*. Until then, from the source repository (Node.js 22 or later):
 
 ```sh
 make obsidian-install VAULT_PATH=~/Notes     # at the root; or, in obsidian/: make install VAULT_PATH=~/Notes
@@ -27,7 +47,7 @@ Nine commands:
 - **Unlink this note** — the note becomes ordinary again, with its last text, its links to the notes of your vault written back as `[[…]]`. The document stays on the server.
 - **Convert the links to shared notes** — the note's `[[…]]` to shared notes written as their addresses (below), for an editor of the note's document.
 - **Obsidian preview alongside** — the note's file in Obsidian's own reading view, beside the plugin's: diagrams, `[[links]]` and embeds as Obsidian renders them (the view draws callouts itself, in the theme's colours). It follows the export (a second late) and shows no annotation.
-- **My documents** (also a ribbon icon) — the vault's list of the documents you open or share, as the web page's home keeps it ([ADR-0040](https://gitlab.com/matclab/obsidian-collab-link/-/blob/v0.8.3/docs/adr/0040-comptes-oidc-trousseau-identite-attestee.md)): kept on the server of the settings, encrypted end to end, the same on all your devices — *Add a device* shows a code whose address you paste on the other one, where the list's key goes. An entry opens in its note. With an identity gateway, *Sign in* opens your organisation's sign-in in the system's browser, which comes back to Obsidian (`obsidian://collab-link-auth`); what you write then reads **verified** under your name.
+- **My documents** (also a ribbon icon) — the vault's list of the documents you open or share, as the web page's home keeps it: kept on the server of the settings, encrypted end to end, the same on all your devices — *Add a device* shows a code whose address you paste on the other one, where the list's key goes. An entry opens in its note. With an identity gateway, *Sign in* opens your organisation's sign-in in the system's browser, which comes back to Obsidian (`obsidian://collab-link-auth`); what you write then reads **verified** under your name.
 - **Open a document of My documents** — the list, filtered by title; the one chosen opens in its note.
 - **Move the section up**, **Move the section down** — the heading the caret is under, with everything up to the next heading of its level or above, before the previous section of its level or after the next one, never out of its parent; for an editor. No hotkey by default: choose them in Obsidian's settings (in the page's editor, Ctrl/Cmd+Shift+Up and Down). A move that would change what the text means (a setext heading right after a paragraph, a code block left open) isn't made.
 
@@ -56,7 +76,7 @@ While a note is shared, Obsidian sees an address, not a note: **no graph, no bac
 
 ## What is where
 
-- **The note's file** is the document's text, plus two properties in its YAML header: `collab-document` (the document's id — not a secret, the server knows it) and `collab-version` (the version the file reflects). It is rewritten a second after the text last changed, while its view is open; a closed note keeps its last export. Search, graph and other plugins see that text — **not the annotations**, which only the view shows. **Attached images** ([ADR-0058](https://gitlab.com/matclab/obsidian-collab-link/-/blob/v0.8.3/docs/adr/0058-images-jointes-dans-le-coffre.md)): the view writes each one it has opened to `images/<document id>/` under the plugin's folder, and the file cites it there (`![…](Collab%20Link/images/…/….png)`) where the document says `attachment:…`; an image not written yet keeps `attachment:`. These files stay when the document no longer cites them, or is unlinked: they are your copy. Renaming or moving one by hand breaks the link: a change from outside then resumed would put that path in the document, where the others don't see the image.
+- **The note's file** is the document's text, plus two properties in its YAML header: `collab-document` (the document's id — not a secret, the server knows it) and `collab-version` (the version the file reflects). It is rewritten a second after the text last changed, while its view is open; a closed note keeps its last export. Search, graph and other plugins see that text — **not the annotations**, which only the view shows. **Attached images**: the view writes each one it has opened to `images/<document id>/` under the plugin's folder, and the file cites it there (`![…](Collab%20Link/images/…/….png)`) where the document says `attachment:…`; an image not written yet keeps `attachment:`. These files stay when the document no longer cites them, or is unlinked: they are your copy. Renaming or moving one by hand breaks the link: a change from outside then resumed would put that path in the document, where the others don't see the image.
 - **The link**, which holds the document's key, is in Obsidian's secret storage (by vault, out of the vault's files, encrypted by the system keyring when there is one — the plugin says once if there is none). It is never in the note, `data.json` or `workspace.json`. A note synced to a device without its link asks for the link.
 - **What is not sent yet** is kept on the device, encrypted, in Obsidian's IndexedDB, as the page does.
 - **My documents** is kept on the device in Obsidian's IndexedDB (by vault): the list encrypted by its key, and its key, the old keys still to delete and the sign-in's token sealed by a key of this device kept in the secret storage — never in clear. The signing key of this device is there too, not extractable.
@@ -74,9 +94,9 @@ The offer lasts as long as the view; after that, merge the copy by hand. A file 
 
 ## Limits
 
-- **Obsidian renders the file with its own rules** wherever it shows it — the preview alongside, a hover on a link to the note, an embed, a canvas: there, an editor's raw HTML is rendered (sanitised by Obsidian) and remote images are loaded, so an editor can learn when and from where you read. **The view's Write mode is Obsidian's editor** (phase 17): its live preview loads them too, in the note itself, as you read or write it. Only the page's editor (a setting, or when Obsidian's can't be used) and the view's Review and History don't, unless you grant them, image by image or for the document ([threat model](https://gitlab.com/matclab/obsidian-collab-link/-/blob/v0.8.3/docs/security/threat-model.md), *Éditeur*; ADR-0055).
-- **An attached SVG written to the vault** shows in Obsidian as an image, without scripts; opened on its own outside Obsidian (a browser, from the file manager), it runs any script an editor of the document put in it ([threat model](https://gitlab.com/matclab/obsidian-collab-link/-/blob/v0.8.3/docs/security/threat-model.md), *Éditeur*). Turn off the setting to keep images off the disk.
-- **What Obsidian draws in the view's editor keeps its accessibility limits**, as in any of Obsidian's notes: its task checkboxes have no accessible name (a screen reader announces a checkbox without its task), some callout titles are in a colour of too little contrast on a light theme (a *warning*'s orange), a link to a note not in the vault is faded below the contrast asked for on a dark theme (as Obsidian draws an unresolved link), a link's accessible name may differ from its text. The plugin's accessibility check leaves those rules out there, and only there (phase 17, decisions 15 and 16).
+- **Obsidian renders the file with its own rules** wherever it shows it — the preview alongside, a hover on a link to the note, an embed, a canvas: there, an editor's raw HTML is rendered (sanitised by Obsidian) and remote images are loaded, so an editor can learn when and from where you read. **The view's Write mode is Obsidian's editor**: its live preview loads them too, in the note itself, as you read or write it. Only the page's editor (a setting, or when Obsidian's can't be used) and the view's Review and History don't, unless you grant them, image by image or for the document.
+- **An attached SVG written to the vault** shows in Obsidian as an image, without scripts; opened on its own outside Obsidian (a browser, from the file manager), it runs any script an editor of the document put in it. Turn off the setting to keep images off the disk.
+- **What Obsidian draws in the view's editor keeps its accessibility limits**, as in any of Obsidian's notes: its task checkboxes have no accessible name (a screen reader announces a checkbox without its task), some callout titles are in a colour of too little contrast on a light theme (a *warning*'s orange), a link to a note not in the vault is faded below the contrast asked for on a dark theme (as Obsidian draws an unresolved link), a link's accessible name may differ from its text. The plugin's accessibility check leaves those rules out there, and only there.
 - **An annotation inside a block Obsidian draws** (a callout, a table, a formula block): Obsidian's live preview draws the block in place of its text, so the annotation's marks and proposed text only show once the caret is in it. The block is framed (dashed; solid for the annotation chosen), and choosing its card puts the caret there, which shows the source — except in a table, whose cells Obsidian edits apart: there, the frame and the card are all there is.
 - **Moving a section while someone types in it**: the text has no "move", only a cut and an insertion. What another person typed in the moved section and you haven't received yet (latency, or all the time they were offline) stays at the old place, alone, glued to the line before; what they typed elsewhere, the neighbouring section included, stays where it was typed.
 - **A link to a shared note typed in the page's editor** (the setting, or when Obsidian's can't be used) isn't converted as you type: the command does it.
@@ -88,7 +108,7 @@ The offer lasts as long as the view; after that, merge the copy by hand. A file 
 - **Properties are shared**: tags or aliases in a shared note are seen by everyone with its link.
 - **No Properties panel in the view**: Obsidian's panel belongs to its own tabs; the YAML header is written as text, at the top of the note.
 - **Obsidian's editor is reached through its internals** (checked on Obsidian 1.14.4): a later version may stop it being mounted, and the view then writes in the page's editor, as it says.
-- **Diagrams drawn by Pele** (ADR-0042), every type inside `main.js`, as in the page.
+- **Diagrams drawn by Pele**, every type inside `main.js`, as in the page.
 - **The outline follows the export**: Obsidian's outline lists the headings of the note's file, a second after the text changes, and not while the file is a change from outside not yet resumed. The heading it marks as the one you are in may be wrong: it counts the lines of the file, shifted by the export's header and by what isn't exported yet. Dragging a heading in it rewrites the file: a change from outside (above), kept in a copy, which you can resume. Quiet Outline shows nothing for the view (it knows Obsidian's own views only).
 
 ## Develop
@@ -99,8 +119,9 @@ Its dependencies are `web/`'s (`node_modules` is a link; `make deps` makes it). 
 - `npm run lint`, `npx tsc --noEmit`;
 - `npm run test:e2e` — the plugin in the real Obsidian against the real server, end to end (`scripts/e2e.mjs`);
 - `npm run check:ui` — axe-core, horizontal scroll and screenshots of the view in Obsidian, both themes, wide and narrow (`scripts/check-ui.mjs`).
+- `node scripts/readme-shot.mjs` — this README's picture of the plugin (`docs/images/obsidian-annotated.png`); the page's, `node scripts/ui/readme-shot.mjs` in `web/`. Taken again whenever what they show changes.
 
-The last two need Obsidian (`/usr/lib/obsidian/app.asar`, run by `electron43`), Xvfb, `server/target/debug/server` and `server/target/debug/gateway` (`cargo build -p app -p gateway`), `choice/render`'s Playwright and `choice/keyring`'s test identity provider (`oauth2-mock-server`); `scripts/harness.mjs` sets everything up in a throwaway vault, on an X display of its own (a second `obsidian <address>` reaches it, as the system's browser hands it `obsidian://`), what Obsidian sends to the system's browser noted by a fake `xdg-open`, and stops it. `./ci.sh --full` runs them.
+The last three need Obsidian (`/usr/lib/obsidian/app.asar`, run by `electron43`), Xvfb, `server/target/debug/server` and `server/target/debug/gateway` (`cargo build -p app -p gateway`), `choice/render`'s Playwright and `choice/keyring`'s test identity provider (`oauth2-mock-server`); `scripts/harness.mjs` sets everything up in a throwaway vault, on an X display of its own (a second `obsidian <address>` reaches it, as the system's browser hands it `obsidian://`), what Obsidian sends to the system's browser noted by a fake `xdg-open`, and stops it. `./ci.sh --full` runs them.
 
 ## Publish
 
